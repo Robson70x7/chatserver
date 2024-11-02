@@ -1,0 +1,16 @@
+{
+    "name": "Go com ffmpeg",
+    "build": {
+        "dockerfile": "./Dockerfile"
+    },
+    "features": {
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": ["Codeium.codeium"]
+        }
+    },
+    "forwardPorts": [],
+    "postCreateCommand": "apt update && apt upgrade && apt install ffmpeg",
+     "remoteUser":"root"
+}

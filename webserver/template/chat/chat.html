@@ -1,0 +1,143 @@
+{{ define "chat/chat.html" }}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #1c1c1c;
+            color: #fff;
+        }
+
+        #messages {
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        #messageForm {
+            display: flex;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        #messageForm input[type="text"], .identification input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #messageForm button, .identification button {
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+
+        .none {
+            display: none !important;
+        }
+
+        .identification {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        a{
+            color: #fff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="identification">
+        <h2>Identifique-se para acessar o chat</h2>
+        <div>
+            <input type="text" name="user" placeholder="Digite seu nome" required id="user">
+            <button type="button" id="btn-confirm-name">Confirmar</button>
+        </div>
+    </div>
+
+    <div class="chat none">
+        <div class="header" style="display: flex; align-items: center; justify-content: space-between;">
+            <h2>WebSocket Chat</h2>
+            <a href="/chat">Sair</a>
+        </div>
+        <div id="messages"></div>
+        <form id="messageForm">
+            <input type="text" name="message" required id="messageInput" placeholder="Digite uma mensagem..."
+                autocomplete="off" />
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const messagesDiv = document.getElementById("messages");
+            const messageForm = document.getElementById("messageForm");
+            const messageInput = document.getElementById("messageInput");
+            const userInput = document.getElementById("user");
+            const confirmButton = document.getElementById("btn-confirm-name");
+
+            confirmButton.addEventListener("click", function () {
+                const userName = userInput.value;
+                if (userName) {
+                    document.querySelector(".identification").classList.add("none");
+                    document.querySelector(".chat").classList.remove("none");
+                }
+            })
+
+
+            // Conectar ao WebSocket
+            var name = location.pathname.split("/").pop();
+            const ws = new WebSocket(`ws://localhost:8080/chat/ws/${name}`);
+
+            // Recebe mensagens do WebSocket
+            ws.onmessage = function (event) {
+                const message = document.createElement("div");
+                const data = JSON.parse(event.data);
+                message.textContent = `${data.user} : ${data.message}`;
+                messagesDiv.appendChild(message);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            };
+
+            // Envia mensagem ao enviar o formulário
+            messageForm.onsubmit = function (event) {
+                event.preventDefault();
+                const message = messageInput.value;
+                const user = userInput.value;
+                const msg = JSON.stringify({ message, user });
+                ws.send(msg);
+                messageInput.value = ""; // Limpa o campo de entrada
+            };
+
+            // Lida com erros de conexão
+            ws.onerror = function (error) {
+                console.error("Erro de WebSocket:", error);
+                alert("Erro de WebSocket: " + error.message);
+            };
+
+            // Fecha o WebSocket ao fechar a página
+            window.onbeforeunload = function () {
+                ws.close();
+            };
+        });
+    </script>
+</body>
+
+</html>
+{{ end }}

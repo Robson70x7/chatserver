@@ -1,0 +1,108 @@
+{{ define "chat/index.html" }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            /* display: flex; */
+            /* justify-content: center; */
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            /* display: none; */
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+            min-width: 200px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .notification button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .notification.success {
+            background-color: #51b354;
+        }
+
+        .notification.error {
+            background-color: #f44336;
+        }
+        .none {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="notification" class="none notification {{ .status }}">
+        <span id="notification-message">{{ .message }}</span>
+        <button onclick="hideNotification()">X</button>
+    </div>
+
+    <h1>Chats Servers</h1>
+    {{ range .chats }}
+
+    <div>
+        <a href="/chat/connect/{{ . }}">{{ . }}</a>
+    </div>
+    {{ end }}
+
+    <hr>
+    <form action="/chat/createchat" method="POST">
+        <input type="text" name="chatName">
+        <button type="submit">Create Chat</button>
+    </form>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const notificationMessage = "{{ .message }}";
+
+            if (!notificationMessage) return
+
+            const notification = document.getElementById('notification');
+            notification.classList.remove('none');
+
+            setTimeout(() => {
+                notification.classList.add('none');
+            }, 3000);
+
+        })
+
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('none');
+        }
+    </script>
+</body>
+
+</html>
+{{ end }}
