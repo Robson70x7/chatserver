@@ -4,7 +4,8 @@
         "dockerfile": "./Dockerfile"
     },
     "mounts": [
-        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind"
+        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind",
+        "source=${localEnv:HOME}/,target=/root/,type=bind"
     ],
     "features": {},
     "customizations": {
@@ -16,5 +17,5 @@
     },
     "forwardPorts": [],
     "postCreateCommand": "apt update && apt upgrade",
-    "remoteUser": "root"
+    //"remoteUser": "dev"
 }
